@@ -25,29 +25,28 @@ import se.curity.identityserver.sdk.web.Request
 import se.curity.identityserver.sdk.web.Response
 import se.curity.identityserver.sdk.web.ResponseModel.templateResponseModel
 import java.util.*
-import java.util.Collections.emptyMap
+
+class RequestModel(request: Request)
 
 class UsernameAuthenticatorRequestHandler(config: UsernameAuthenticatorPluginConfig)
     : AuthenticatorRequestHandler<RequestModel> {
 
     private val userPreferencesManager = config.userPreferencesManager
 
-    override fun get(requestModel: RequestModel, response: Response): Optional<AuthenticationResult> {
-        return Optional.empty()
-    }
+    override fun get(requestModel: RequestModel, response: Response): Optional<AuthenticationResult> = Optional.empty()
+
 
     override fun post(requestModel: RequestModel, response: Response): Optional<AuthenticationResult> {
         return Optional.of(
                 AuthenticationResult(
                         AuthenticationAttributes.of(
-                                SubjectAttributes.of(requestModel.username, Attributes.of(Attribute.of("username", requestModel.username))),
+                                SubjectAttributes.of("test", Attributes.of(Attribute.of("username", "test"))),
                                 ContextAttributes.of(Attributes.of(Attribute.of("iat", Date().time))))))
     }
 
     override fun preProcess(request: Request, response: Response): RequestModel {
         if (request.isGetRequest) {
             // GET request
-            Collections.singletonMap("username", userPreferencesManager.username)
             response.setResponseModel(templateResponseModel(Collections.singletonMap("username", userPreferencesManager.username) as Map<String, Any>?, "authenticate/get"),
                     Response.ResponseModelScope.NOT_FAILURE)
         }
@@ -56,6 +55,6 @@ class UsernameAuthenticatorRequestHandler(config: UsernameAuthenticatorPluginCon
         response.setResponseModel(templateResponseModel(emptyMap<String, Any>(),
                 "authenticate/get"), HttpStatus.BAD_REQUEST)
 
-        return RequestModel(request)
+        return  RequestModel(request)
     }
 }
