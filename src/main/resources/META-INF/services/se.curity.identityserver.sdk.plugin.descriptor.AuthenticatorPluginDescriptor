@@ -14,4 +14,4 @@
 #  limitations under the License.
 #
 
-io.curity.identityserver.plugin.descriptor.UsernameAuthenticatorPluginDescriptor
+io.curity.identityserver.plugin.username.descriptor.UsernameAuthenticatorPluginDescriptor

@@ -14,9 +14,9 @@
  *  limitations under the License.
  */
 
-package io.curity.identityserver.plugin.authentication
+package io.curity.identityserver.plugin.username.authentication
 
-import io.curity.identityserver.plugin.config.UsernameAuthenticatorPluginConfig
+import io.curity.identityserver.plugin.username.config.UsernameAuthenticatorPluginConfig
 import se.curity.identityserver.sdk.attribute.*
 import se.curity.identityserver.sdk.authentication.AuthenticationResult
 import se.curity.identityserver.sdk.authentication.AuthenticatorRequestHandler
@@ -25,8 +25,6 @@ import se.curity.identityserver.sdk.web.Request
 import se.curity.identityserver.sdk.web.Response
 import se.curity.identityserver.sdk.web.ResponseModel.templateResponseModel
 import java.util.*
-
-class RequestModel(request: Request)
 
 class UsernameAuthenticatorRequestHandler(config: UsernameAuthenticatorPluginConfig)
     : AuthenticatorRequestHandler<RequestModel> {
@@ -37,10 +35,11 @@ class UsernameAuthenticatorRequestHandler(config: UsernameAuthenticatorPluginCon
 
 
     override fun post(requestModel: RequestModel, response: Response): Optional<AuthenticationResult> {
+        userPreferencesManager.saveUsername(requestModel.postRequestModel?.username)
         return Optional.of(
                 AuthenticationResult(
                         AuthenticationAttributes.of(
-                                SubjectAttributes.of("test", Attributes.of(Attribute.of("username", "test"))),
+                                SubjectAttributes.of(requestModel.postRequestModel?.username, Attributes.of(Attribute.of("username", requestModel.postRequestModel?.username))),
                                 ContextAttributes.of(Attributes.of(Attribute.of("iat", Date().time))))))
     }
 
@@ -55,6 +54,6 @@ class UsernameAuthenticatorRequestHandler(config: UsernameAuthenticatorPluginCon
         response.setResponseModel(templateResponseModel(emptyMap<String, Any>(),
                 "authenticate/get"), HttpStatus.BAD_REQUEST)
 
-        return  RequestModel(request)
+        return RequestModel(request)
     }
 }
