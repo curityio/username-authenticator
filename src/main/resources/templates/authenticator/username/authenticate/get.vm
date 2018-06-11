@@ -22,6 +22,16 @@
 
     #parse("fragments/jquery")
 
+    #set($isHidden = "hidden")
+    #if ($error)
+        #set($isHidden = "not-hidden")
+    #end
+<div class="mt3 px3 lg-px4" id="user-error" $!isHidden>
+    <div class="alert alert-danger px4">
+        $!error<br>
+    </div>
+</div>
+
 <form id="mobileNumberForm" method="post" action="$_authUrl">
 
     <div class="sm-col-12 center">

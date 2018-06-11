@@ -14,9 +14,9 @@
  *  limitations under the License.
  */
 
-package io.curity.identityserver.plugin.authentication
+package io.curity.identityserver.plugin.username.authentication
 
-import io.curity.identityserver.plugin.config.UsernameAuthenticatorPluginConfig
+import io.curity.identityserver.plugin.username.config.UsernameAuthenticatorPluginConfig
 import se.curity.identityserver.sdk.attribute.*
 import se.curity.identityserver.sdk.authentication.AuthenticationResult
 import se.curity.identityserver.sdk.authentication.AuthenticatorRequestHandler
@@ -25,29 +25,27 @@ import se.curity.identityserver.sdk.web.Request
 import se.curity.identityserver.sdk.web.Response
 import se.curity.identityserver.sdk.web.ResponseModel.templateResponseModel
 import java.util.*
-import java.util.Collections.emptyMap
 
 class UsernameAuthenticatorRequestHandler(config: UsernameAuthenticatorPluginConfig)
     : AuthenticatorRequestHandler<RequestModel> {
 
     private val userPreferencesManager = config.userPreferencesManager
 
-    override fun get(requestModel: RequestModel, response: Response): Optional<AuthenticationResult> {
-        return Optional.empty()
-    }
+    override fun get(requestModel: RequestModel, response: Response): Optional<AuthenticationResult> = Optional.empty()
+
 
     override fun post(requestModel: RequestModel, response: Response): Optional<AuthenticationResult> {
+        userPreferencesManager.saveUsername(requestModel.postRequestModel?.username)
         return Optional.of(
                 AuthenticationResult(
                         AuthenticationAttributes.of(
-                                SubjectAttributes.of(requestModel.username, Attributes.of(Attribute.of("username", requestModel.username))),
+                                SubjectAttributes.of(requestModel.postRequestModel?.username, Attributes.of(Attribute.of("username", requestModel.postRequestModel?.username))),
                                 ContextAttributes.of(Attributes.of(Attribute.of("iat", Date().time))))))
     }
 
     override fun preProcess(request: Request, response: Response): RequestModel {
         if (request.isGetRequest) {
             // GET request
-            Collections.singletonMap("username", userPreferencesManager.username)
             response.setResponseModel(templateResponseModel(Collections.singletonMap("username", userPreferencesManager.username) as Map<String, Any>?, "authenticate/get"),
                     Response.ResponseModelScope.NOT_FAILURE)
         }

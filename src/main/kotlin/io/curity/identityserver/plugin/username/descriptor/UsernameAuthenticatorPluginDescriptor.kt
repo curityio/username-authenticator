@@ -1,7 +1,7 @@
-package io.curity.identityserver.plugin.descriptor
+package io.curity.identityserver.plugin.username.descriptor
 
-import io.curity.identityserver.plugin.authentication.UsernameAuthenticatorRequestHandler
-import io.curity.identityserver.plugin.config.UsernameAuthenticatorPluginConfig
+import io.curity.identityserver.plugin.username.authentication.UsernameAuthenticatorRequestHandler
+import io.curity.identityserver.plugin.username.config.UsernameAuthenticatorPluginConfig
 import se.curity.identityserver.sdk.authentication.AuthenticatorRequestHandler
 import se.curity.identityserver.sdk.plugin.descriptor.AuthenticatorPluginDescriptor
 
