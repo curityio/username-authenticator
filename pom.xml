@@ -6,16 +6,16 @@
 
     <groupId>io.curity.identityserver.plugin</groupId>
     <artifactId>identityserver.plugins.authenticators.username</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.0</version>
     <packaging>jar</packaging>
 
     <name>Curity Username Authenticator</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.curityVersion>2.4.0</project.curityVersion>
+        <project.curityVersion>3.3.0</project.curityVersion>
         <project.slf4jVersion>1.7.22</project.slf4jVersion>
-        <kotlin.version>1.1.4-3</kotlin.version>
+        <kotlin.version>1.2.50</kotlin.version>
     </properties>
 
     <build>
@@ -79,6 +79,13 @@
             <url>https://nexus.curity.se/nexus/content/repositories/customer-release-repo</url>
             <snapshots>
                 <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>customer-snapshot-repo</id>
+            <url>https://nexus.curity.se/nexus/content/repositories/customer-snapshot-repo</url>
+            <snapshots>
+                <enabled>true</enabled>
             </snapshots>
         </repository>
     </repositories>
