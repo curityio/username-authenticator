@@ -1,0 +1,40 @@
+<settings>
+    <profiles>
+        <profile>
+            <id>curity-nexus</id>
+            <repositories>                
+                <repository>
+                    <id>customer-snapshot-repo</id>
+                    <url>https://nexus.curity.se/nexus/content/repositories/customer-snapshot-repo/</url>
+                    <releases><enabled>false</enabled></releases>
+                    <snapshots><enabled>true</enabled></snapshots>
+                </repository>
+                <repository>
+                    <id>customer-release-repo</id>
+                    <url>https://nexus.curity.se/nexus/content/repositories/customer-release-repo/</url>
+                    <releases><enabled>true</enabled></releases>
+                    <snapshots><enabled>false</enabled></snapshots>
+                </repository>                
+            </repositories>                        
+        </profile>
+    </profiles>
+
+    <activeProfiles>
+      <!--make the profile active all the time -->
+      <activeProfile>curity-nexus</activeProfile>
+    </activeProfiles>
+
+  <servers>
+    <!-- Curity Nexus Repository access -->    
+    <server>
+        <id>customer-snapshot-repo</id>
+        <username>${env.MAVEN_USERNAME}</username>
+        <password>${env.MAVEN_PASSWORD}</password>
+    </server>
+    <server>
+        <id>customer-release-repo</id>
+        <username>${env.MAVEN_USERNAME}</username>
+        <password>${env.MAVEN_PASSWORD}</password>
+    </server>    
+  </servers>
+</settings>

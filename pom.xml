@@ -81,5 +81,12 @@
                 <enabled>false</enabled>
             </snapshots>
         </repository>
+        <repository>
+            <id>customer-snapshot-repo</id>
+            <url>https://nexus.curity.se/nexus/content/repositories/customer-snapshot-repo</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
     </repositories>
 </project>
