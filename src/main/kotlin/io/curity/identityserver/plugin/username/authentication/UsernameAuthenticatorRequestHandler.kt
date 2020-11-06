@@ -43,16 +43,21 @@ class UsernameAuthenticatorRequestHandler(config: UsernameAuthenticatorPluginCon
                                 ContextAttributes.of(Attributes.of(Attribute.of("iat", Date().time))))))
     }
 
+    companion object
+    {
+        const val templateName = "authenticate/get"
+    }
+
     override fun preProcess(request: Request, response: Response): RequestModel {
         if (request.isGetRequest) {
             // GET request
-            response.setResponseModel(templateResponseModel(Collections.singletonMap("username", userPreferencesManager.username) as Map<String, Any>?, "authenticate/get"),
+            response.putViewData("username", userPreferencesManager.username,
                     Response.ResponseModelScope.NOT_FAILURE)
         }
 
         // on request validation failure, we should use the same template as for NOT_FAILURE
         response.setResponseModel(templateResponseModel(emptyMap<String, Any>(),
-                "authenticate/get"), HttpStatus.BAD_REQUEST)
+                templateName), Response.ResponseModelScope.ANY)
 
         return RequestModel(request)
     }
