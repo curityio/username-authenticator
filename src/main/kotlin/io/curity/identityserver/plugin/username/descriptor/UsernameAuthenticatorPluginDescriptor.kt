@@ -10,12 +10,12 @@ class UsernameAuthenticatorPluginDescriptor : AuthenticatorPluginDescriptor<User
 {
     override fun getAuthenticationRequestHandlerTypes(): Map<String, Class<out AuthenticatorRequestHandler<*>>> =
             mapOf("index" to UsernameAuthenticatorRequestHandler::class.java)
-    
+
     override fun getConfigurationType(): Class<out UsernameAuthenticatorPluginConfig> =
-        UsernameAuthenticatorPluginConfig::class.java
-    
+            UsernameAuthenticatorPluginConfig::class.java
+
     override fun getPluginImplementationType(): String = "username"
 
-    override fun getRepresentationFunctions() = mapOf("authenticator/username/" +
+    override fun getRepresentationFunctions() = mapOf(
             UsernameAuthenticatorRequestHandler.templateName to GetRepresentationFunction::class.java)
 }
