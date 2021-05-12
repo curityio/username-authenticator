@@ -17,39 +17,63 @@
 package io.curity.identityserver.plugin.username.authentication
 
 import io.curity.identityserver.plugin.username.config.UsernameAuthenticatorPluginConfig
-import se.curity.identityserver.sdk.attribute.*
+import se.curity.identityserver.sdk.attribute.Attribute
+import se.curity.identityserver.sdk.attribute.Attributes
+import se.curity.identityserver.sdk.attribute.AuthenticationAttributes
+import se.curity.identityserver.sdk.attribute.ContextAttributes
+import se.curity.identityserver.sdk.attribute.SubjectAttributes
 import se.curity.identityserver.sdk.authentication.AuthenticationResult
 import se.curity.identityserver.sdk.authentication.AuthenticatorRequestHandler
-import se.curity.identityserver.sdk.http.HttpStatus
+import se.curity.identityserver.sdk.errors.ErrorCode
 import se.curity.identityserver.sdk.web.Request
 import se.curity.identityserver.sdk.web.Response
 import se.curity.identityserver.sdk.web.ResponseModel.templateResponseModel
-import java.util.*
+import java.util.Date
+import java.util.Optional
 
 class UsernameAuthenticatorRequestHandler(config: UsernameAuthenticatorPluginConfig)
-    : AuthenticatorRequestHandler<RequestModel> {
+    : AuthenticatorRequestHandler<RequestModel>
+{
 
     private val userPreferencesManager = config.userPreferencesManager
+    private val autoPostLoginHint = config.autoSubmitPreferredUserName()
+    private val exceptionFactory = config.exceptionFactory
 
-    override fun get(requestModel: RequestModel, response: Response): Optional<AuthenticationResult> = Optional.empty()
-
-
-    override fun post(requestModel: RequestModel, response: Response): Optional<AuthenticationResult> {
-        userPreferencesManager.saveUsername(requestModel.postRequestModel?.username)
-        return Optional.of(
-                AuthenticationResult(
-                        AuthenticationAttributes.of(
-                                SubjectAttributes.of(requestModel.postRequestModel?.username, Attributes.of(Attribute.of("username", requestModel.postRequestModel?.username))),
-                                ContextAttributes.of(Attributes.of(Attribute.of("iat", Date().time))))))
+    override fun get(requestModel: RequestModel, response: Response): Optional<AuthenticationResult>
+    {
+        if (autoPostLoginHint && requestModel.getRequestModel?.preferredUserName != null)
+        {
+            return Optional.of(createAuthenticationResult(requestModel.getRequestModel.preferredUserName))
+        }
+        return Optional.empty()
     }
+
+
+    override fun post(requestModel: RequestModel, response: Response): Optional<AuthenticationResult>
+    {
+        val postRequestModel = requestModel.postRequestModel
+                ?: throw exceptionFactory.internalServerException(ErrorCode.GENERIC_ERROR,
+                        "Could not find correct request model")
+
+        userPreferencesManager.saveUsername(postRequestModel.username)
+
+        return Optional.of(createAuthenticationResult(postRequestModel.username))
+    }
+
+    private fun createAuthenticationResult(userName: String) = AuthenticationResult(
+            AuthenticationAttributes.of(
+                    SubjectAttributes.of(userName, Attributes.of(Attribute.of("username", userName))),
+                    ContextAttributes.of(Attributes.of(Attribute.of("iat", Date().time)))))
 
     companion object
     {
         const val templateName = "authenticate/get"
     }
 
-    override fun preProcess(request: Request, response: Response): RequestModel {
-        if (request.isGetRequest) {
+    override fun preProcess(request: Request, response: Response): RequestModel
+    {
+        if (request.isGetRequest)
+        {
             // GET request
             response.putViewData("username", userPreferencesManager.username,
                     Response.ResponseModelScope.NOT_FAILURE)
@@ -59,6 +83,6 @@ class UsernameAuthenticatorRequestHandler(config: UsernameAuthenticatorPluginCon
         response.setResponseModel(templateResponseModel(emptyMap<String, Any>(),
                 templateName), Response.ResponseModelScope.ANY)
 
-        return RequestModel(request)
+        return RequestModel(request, userPreferencesManager)
     }
 }
