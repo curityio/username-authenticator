@@ -25,9 +25,11 @@ import se.curity.identityserver.sdk.attribute.SubjectAttributes
 import se.curity.identityserver.sdk.authentication.AuthenticationResult
 import se.curity.identityserver.sdk.authentication.AuthenticatorRequestHandler
 import se.curity.identityserver.sdk.errors.ErrorCode
+import se.curity.identityserver.sdk.http.HttpStatus
 import se.curity.identityserver.sdk.web.Request
 import se.curity.identityserver.sdk.web.Response
 import se.curity.identityserver.sdk.web.ResponseModel.templateResponseModel
+import java.util.Collections.singletonMap
 import java.util.Date
 import java.util.Optional
 
@@ -72,16 +74,14 @@ class UsernameAuthenticatorRequestHandler(config: UsernameAuthenticatorPluginCon
 
     override fun preProcess(request: Request, response: Response): RequestModel
     {
-        if (request.isGetRequest)
-        {
-            // GET request
-            response.putViewData("username", userPreferencesManager.username,
-                    Response.ResponseModelScope.NOT_FAILURE)
-        }
+        // set the template and model for responses on the NOT_FAILURE scope
+        response.setResponseModel(templateResponseModel(
+            singletonMap("username", userPreferencesManager.username as Any?),
+            templateName), Response.ResponseModelScope.NOT_FAILURE)
 
         // on request validation failure, we should use the same template as for NOT_FAILURE
-        response.setResponseModel(templateResponseModel(emptyMap<String, Any>(),
-                templateName), Response.ResponseModelScope.ANY)
+        response.setResponseModel(templateResponseModel(emptyMap(),
+            templateName), HttpStatus.BAD_REQUEST)
 
         return RequestModel(request, userPreferencesManager)
     }
