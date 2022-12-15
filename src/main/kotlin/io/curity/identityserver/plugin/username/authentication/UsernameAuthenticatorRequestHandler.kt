@@ -74,13 +74,6 @@ class UsernameAuthenticatorRequestHandler(config: UsernameAuthenticatorPluginCon
 
     override fun preProcess(request: Request, response: Response): RequestModel
     {
-        if (request.isGetRequest)
-        {
-            // GET request
-            response.putViewData("username", userPreferencesManager.username,
-                    Response.ResponseModelScope.NOT_FAILURE)
-        }
-
         // set the template and model for responses on the NOT_FAILURE scope
         response.setResponseModel(templateResponseModel(
             singletonMap("username", userPreferencesManager.username as Any?),
