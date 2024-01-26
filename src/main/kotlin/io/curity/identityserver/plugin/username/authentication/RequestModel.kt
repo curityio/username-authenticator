@@ -1,7 +1,6 @@
 package io.curity.identityserver.plugin.username.authentication
 
 import org.hibernate.validator.constraints.NotBlank
-import se.curity.identityserver.sdk.service.OriginalQueryExtractor
 import se.curity.identityserver.sdk.service.UserPreferenceManager
 import se.curity.identityserver.sdk.web.Request
 import javax.validation.Valid
@@ -19,6 +18,7 @@ class Post(request: Request)
 {
     @NotBlank(message = "validation.error.username.required")
     val username: String = request.getFormParameterValueOrError("username")
+    var register: MutableCollection<String>? = request.getFormParameterValues("register")
 }
 
 class Get(userPreferenceManager: UserPreferenceManager)

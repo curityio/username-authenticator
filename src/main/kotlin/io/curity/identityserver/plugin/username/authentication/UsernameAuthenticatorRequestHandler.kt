@@ -17,11 +17,7 @@
 package io.curity.identityserver.plugin.username.authentication
 
 import io.curity.identityserver.plugin.username.config.UsernameAuthenticatorPluginConfig
-import se.curity.identityserver.sdk.attribute.Attribute
-import se.curity.identityserver.sdk.attribute.Attributes
-import se.curity.identityserver.sdk.attribute.AuthenticationAttributes
-import se.curity.identityserver.sdk.attribute.ContextAttributes
-import se.curity.identityserver.sdk.attribute.SubjectAttributes
+import se.curity.identityserver.sdk.attribute.*
 import se.curity.identityserver.sdk.authentication.AuthenticationResult
 import se.curity.identityserver.sdk.authentication.AuthenticatorRequestHandler
 import se.curity.identityserver.sdk.errors.ErrorCode
@@ -29,9 +25,8 @@ import se.curity.identityserver.sdk.http.HttpStatus
 import se.curity.identityserver.sdk.web.Request
 import se.curity.identityserver.sdk.web.Response
 import se.curity.identityserver.sdk.web.ResponseModel.templateResponseModel
-import java.util.Collections.singletonMap
-import java.util.Date
-import java.util.Optional
+import java.util.*
+
 
 class UsernameAuthenticatorRequestHandler(config: UsernameAuthenticatorPluginConfig)
     : AuthenticatorRequestHandler<RequestModel>
@@ -40,12 +35,13 @@ class UsernameAuthenticatorRequestHandler(config: UsernameAuthenticatorPluginCon
     private val userPreferencesManager = config.userPreferencesManager
     private val autoPostLoginHint = config.autoSubmitPreferredUserName()
     private val exceptionFactory = config.exceptionFactory
+    private val showSignUpButton = config.getShowSignUpButton()
 
     override fun get(requestModel: RequestModel, response: Response): Optional<AuthenticationResult>
     {
         if (autoPostLoginHint && requestModel.getRequestModel?.preferredUserName != null)
         {
-            return Optional.of(createAuthenticationResult(requestModel.getRequestModel.preferredUserName))
+            return Optional.of(createAuthenticationResult(requestModel.getRequestModel.preferredUserName, null))
         }
         return Optional.empty()
     }
@@ -59,13 +55,21 @@ class UsernameAuthenticatorRequestHandler(config: UsernameAuthenticatorPluginCon
 
         userPreferencesManager.saveUsername(postRequestModel.username)
 
-        return Optional.of(createAuthenticationResult(postRequestModel.username))
+        return Optional.of(createAuthenticationResult(postRequestModel.username, postRequestModel.register))
     }
 
-    private fun createAuthenticationResult(userName: String) = AuthenticationResult(
+    private fun createAuthenticationResult(userName: String, registrationIndicator: MutableCollection<String>?):
+            AuthenticationResult {
+        var contextAttributes = ContextAttributes.of(Attributes.of(Attribute.of("iat", Date().time)))
+        if (registrationIndicator?.isNotEmpty() == true)
+        {
+            contextAttributes = contextAttributes.with(Attribute.of("new_account_registration", true))
+        }
+        return AuthenticationResult(
             AuthenticationAttributes.of(
-                    SubjectAttributes.of(userName, Attributes.of(Attribute.of("username", userName))),
-                    ContextAttributes.of(Attributes.of(Attribute.of("iat", Date().time)))))
+                SubjectAttributes.of(userName, Attributes.of(Attribute.of("username", userName))),
+                contextAttributes))
+    }
 
     companion object
     {
@@ -75,9 +79,10 @@ class UsernameAuthenticatorRequestHandler(config: UsernameAuthenticatorPluginCon
     override fun preProcess(request: Request, response: Response): RequestModel
     {
         // set the template and model for responses on the NOT_FAILURE scope
-        response.setResponseModel(templateResponseModel(
-            singletonMap("username", userPreferencesManager.username as Any?),
-            templateName), Response.ResponseModelScope.NOT_FAILURE)
+        val data = HashMap<String, Any?>(2)
+        data["username"] = userPreferencesManager.username as Any?
+        data["_showSignUpButton"] = showSignUpButton
+        response.setResponseModel(templateResponseModel(data, templateName), Response.ResponseModelScope.NOT_FAILURE)
 
         // on request validation failure, we should use the same template as for NOT_FAILURE
         response.setResponseModel(templateResponseModel(emptyMap(),

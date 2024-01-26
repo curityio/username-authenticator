@@ -47,7 +47,9 @@
            value="$!username">
 
     <button type="submit" class="button button-fullwidth button-primary">#message("${_templatePrefix}.view.submit")</button>
-
+    #if ($_showSignUpButton)
+        <button type="submit" class="button button-fullwidth button-primary" value="register" name="register">Register</button>
+    #end
 </form>
 #end
 

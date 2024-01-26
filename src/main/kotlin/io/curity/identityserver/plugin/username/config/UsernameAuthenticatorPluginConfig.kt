@@ -1,10 +1,9 @@
-package io.curity.identityserver.plugin.username.config;
+package io.curity.identityserver.plugin.username.config
 
 import se.curity.identityserver.sdk.config.Configuration
 import se.curity.identityserver.sdk.config.annotation.DefaultBoolean
 import se.curity.identityserver.sdk.config.annotation.Description
 import se.curity.identityserver.sdk.service.ExceptionFactory
-import se.curity.identityserver.sdk.service.OriginalQueryExtractor
 import se.curity.identityserver.sdk.service.UserPreferenceManager
 
 interface UsernameAuthenticatorPluginConfig : Configuration
@@ -17,4 +16,7 @@ interface UsernameAuthenticatorPluginConfig : Configuration
             "`login_hint`.")
     @DefaultBoolean(false)
     fun autoSubmitPreferredUserName(): Boolean
+
+    @DefaultBoolean(false)
+    fun getShowSignUpButton(): Boolean
 }
