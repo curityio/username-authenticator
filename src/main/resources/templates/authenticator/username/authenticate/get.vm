@@ -47,8 +47,8 @@
            value="$!username">
 
     <button type="submit" class="button button-fullwidth button-primary">#message("${_templatePrefix}.view.submit")</button>
-    #if ($_showSignUpButton)
-        <button type="submit" class="button button-fullwidth button-primary" value="register" name="register">Register</button>
+    #if ($_showLinkToSetContextAttribute)
+        <a href="?$_contextAttributeName" class="mt2 button button-fullwidth button-primary">#message("${_templatePrefix}.${_contextAttributeMessageKey}")</a>
     #end
 </form>
 #end

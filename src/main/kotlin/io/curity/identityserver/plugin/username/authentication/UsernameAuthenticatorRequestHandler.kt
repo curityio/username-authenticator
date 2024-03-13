@@ -35,11 +35,17 @@ class UsernameAuthenticatorRequestHandler(config: UsernameAuthenticatorPluginCon
     private val userPreferencesManager = config.userPreferencesManager
     private val autoPostLoginHint = config.autoSubmitPreferredUserName()
     private val exceptionFactory = config.exceptionFactory
-    private val showSignUpButton = config.getShowSignUpButton()
+    private val showLinkToSetContextAttribute = config.getShowLinkToSetContextAttribute()
 
     override fun get(requestModel: RequestModel, response: Response): Optional<AuthenticationResult>
     {
-        if (autoPostLoginHint && requestModel.getRequestModel?.preferredUserName != null)
+        if (requestModel.getRequestModel?.register == true) {
+            return Optional.of(createAuthenticationResult(
+                null,
+                showLinkToSetContextAttribute.get().getContextAttributeName())
+            )
+        }
+        else if (autoPostLoginHint  && requestModel.getRequestModel?.preferredUserName != null)
         {
             return Optional.of(createAuthenticationResult(requestModel.getRequestModel.preferredUserName, null))
         }
@@ -55,19 +61,24 @@ class UsernameAuthenticatorRequestHandler(config: UsernameAuthenticatorPluginCon
 
         userPreferencesManager.saveUsername(postRequestModel.username)
 
-        return Optional.of(createAuthenticationResult(postRequestModel.username, postRequestModel.register))
+        return Optional.of(createAuthenticationResult(postRequestModel.username, null))
     }
 
-    private fun createAuthenticationResult(userName: String, registrationIndicator: MutableCollection<String>?):
+    private fun createAuthenticationResult(userName: String?, contextAttributeName: String?):
             AuthenticationResult {
         var contextAttributes = ContextAttributes.of(Attributes.of(Attribute.of("iat", Date().time)))
-        if (registrationIndicator?.isNotEmpty() == true)
+        if (contextAttributeName != null)
         {
-            contextAttributes = contextAttributes.with(Attribute.of("new_account_registration", true))
+            contextAttributes = contextAttributes.with(Attribute.of(contextAttributeName, true))
+        }
+        var username = userName
+        if (userName == null)
+        {
+            username = ""
         }
         return AuthenticationResult(
             AuthenticationAttributes.of(
-                SubjectAttributes.of(userName, Attributes.of(Attribute.of("username", userName))),
+                SubjectAttributes.of(username, Attributes.of(Attribute.of("username", username))),
                 contextAttributes))
     }
 
@@ -80,14 +91,18 @@ class UsernameAuthenticatorRequestHandler(config: UsernameAuthenticatorPluginCon
     {
         // set the template and model for responses on the NOT_FAILURE scope
         val data = HashMap<String, Any?>(2)
-        data["username"] = userPreferencesManager.username as Any?
-        data["_showSignUpButton"] = showSignUpButton
+        data["username"] = userPreferencesManager.username
+        if (showLinkToSetContextAttribute.isPresent) {
+            data["_showLinkToSetContextAttribute"] = true
+            data["_contextAttributeMessageKey"] = showLinkToSetContextAttribute.get().getMessageKey()
+            data["_contextAttributeName"] = showLinkToSetContextAttribute.get().getContextAttributeName()
+        }
         response.setResponseModel(templateResponseModel(data, templateName), Response.ResponseModelScope.NOT_FAILURE)
 
         // on request validation failure, we should use the same template as for NOT_FAILURE
         response.setResponseModel(templateResponseModel(emptyMap(),
             templateName), HttpStatus.BAD_REQUEST)
 
-        return RequestModel(request, userPreferencesManager)
+        return RequestModel(request, userPreferencesManager, showLinkToSetContextAttribute.get().getContextAttributeName())
     }
 }

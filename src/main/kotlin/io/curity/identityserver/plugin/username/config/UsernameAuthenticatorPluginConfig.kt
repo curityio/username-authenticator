@@ -5,6 +5,7 @@ import se.curity.identityserver.sdk.config.annotation.DefaultBoolean
 import se.curity.identityserver.sdk.config.annotation.Description
 import se.curity.identityserver.sdk.service.ExceptionFactory
 import se.curity.identityserver.sdk.service.UserPreferenceManager
+import java.util.*
 
 interface UsernameAuthenticatorPluginConfig : Configuration
 {
@@ -17,6 +18,12 @@ interface UsernameAuthenticatorPluginConfig : Configuration
     @DefaultBoolean(false)
     fun autoSubmitPreferredUserName(): Boolean
 
-    @DefaultBoolean(false)
-    fun getShowSignUpButton(): Boolean
+    fun getShowLinkToSetContextAttribute(): Optional<ContextAttributes>
+
+    interface ContextAttributes {
+        @Description("Message key present on the authenticator's link")
+        fun getMessageKey(): String
+        @Description("Name of the attribute added to context attributes")
+        fun getContextAttributeName(): String
+    }
 }
