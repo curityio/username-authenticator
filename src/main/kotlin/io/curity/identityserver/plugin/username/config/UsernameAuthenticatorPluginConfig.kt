@@ -5,7 +5,7 @@ import se.curity.identityserver.sdk.config.annotation.DefaultBoolean
 import se.curity.identityserver.sdk.config.annotation.Description
 import se.curity.identityserver.sdk.service.ExceptionFactory
 import se.curity.identityserver.sdk.service.UserPreferenceManager
-import java.util.*
+import java.util.Optional
 
 interface UsernameAuthenticatorPluginConfig : Configuration
 {

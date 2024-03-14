@@ -17,7 +17,11 @@
 package io.curity.identityserver.plugin.username.authentication
 
 import io.curity.identityserver.plugin.username.config.UsernameAuthenticatorPluginConfig
-import se.curity.identityserver.sdk.attribute.*
+import se.curity.identityserver.sdk.attribute.Attribute
+import se.curity.identityserver.sdk.attribute.Attributes
+import se.curity.identityserver.sdk.attribute.AuthenticationAttributes
+import se.curity.identityserver.sdk.attribute.ContextAttributes
+import se.curity.identityserver.sdk.attribute.SubjectAttributes
 import se.curity.identityserver.sdk.authentication.AuthenticationResult
 import se.curity.identityserver.sdk.authentication.AuthenticatorRequestHandler
 import se.curity.identityserver.sdk.errors.ErrorCode
@@ -25,7 +29,8 @@ import se.curity.identityserver.sdk.http.HttpStatus
 import se.curity.identityserver.sdk.web.Request
 import se.curity.identityserver.sdk.web.Response
 import se.curity.identityserver.sdk.web.ResponseModel.templateResponseModel
-import java.util.*
+import java.util.Date
+import java.util.Optional
 
 
 class UsernameAuthenticatorRequestHandler(config: UsernameAuthenticatorPluginConfig)
@@ -88,7 +93,7 @@ class UsernameAuthenticatorRequestHandler(config: UsernameAuthenticatorPluginCon
     override fun preProcess(request: Request, response: Response): RequestModel
     {
         // set the template and model for responses on the NOT_FAILURE scope
-        val data = HashMap<String, Any?>(2)
+        val data = HashMap<String, Any?>(4)
         data["username"] = userPreferencesManager.username
         if (showLinkToSetContextAttribute.isPresent) {
             data["_showLinkToSetContextAttribute"] = true
