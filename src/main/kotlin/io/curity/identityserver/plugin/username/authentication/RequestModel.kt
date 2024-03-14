@@ -5,13 +5,13 @@ import se.curity.identityserver.sdk.service.UserPreferenceManager
 import se.curity.identityserver.sdk.web.Request
 import javax.validation.Valid
 
-class RequestModel(request: Request, userPreferenceManager: UserPreferenceManager, contextAttributeName: String)
+class RequestModel(request: Request, userPreferenceManager: UserPreferenceManager)
 {
     @Valid
     val postRequestModel: Post? = if (request.isPostRequest) Post(request) else null
 
     @Valid
-    val getRequestModel: Get? = if (request.isGetRequest) Get(request, userPreferenceManager, contextAttributeName) else null
+    val getRequestModel: Get? = if (request.isGetRequest) Get(request, userPreferenceManager) else null
 }
 
 class Post(request: Request)
@@ -20,8 +20,8 @@ class Post(request: Request)
     val username: String = request.getFormParameterValueOrError("username")
 }
 
-class Get(request: Request, userPreferenceManager: UserPreferenceManager, contextAttributeName: String)
+class Get(request: Request, userPreferenceManager: UserPreferenceManager)
 {
-    var register: Boolean = request.queryParameterNames.contains(contextAttributeName)
+    var register: Boolean = request.queryParameterNames.contains(UsernameAuthenticatorRequestHandler.ADD_CONTEXT)
     val preferredUserName: String? = userPreferenceManager.username
 }

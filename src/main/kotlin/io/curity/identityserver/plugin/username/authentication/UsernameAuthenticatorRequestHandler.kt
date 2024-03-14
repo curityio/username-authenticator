@@ -39,7 +39,7 @@ class UsernameAuthenticatorRequestHandler(config: UsernameAuthenticatorPluginCon
 
     override fun get(requestModel: RequestModel, response: Response): Optional<AuthenticationResult>
     {
-        if (requestModel.getRequestModel?.register == true) {
+        if (requestModel.getRequestModel?.register == true && showLinkToSetContextAttribute.isPresent) {
             return Optional.of(createAuthenticationResult(
                 null,
                 showLinkToSetContextAttribute.get().getContextAttributeName())
@@ -66,16 +66,13 @@ class UsernameAuthenticatorRequestHandler(config: UsernameAuthenticatorPluginCon
 
     private fun createAuthenticationResult(userName: String?, contextAttributeName: String?):
             AuthenticationResult {
+
         var contextAttributes = ContextAttributes.of(Attributes.of(Attribute.of("iat", Date().time)))
-        if (contextAttributeName != null)
-        {
+        if (contextAttributeName != null) {
             contextAttributes = contextAttributes.with(Attribute.of(contextAttributeName, true))
         }
-        var username = userName
-        if (userName == null)
-        {
-            username = ""
-        }
+
+        val username = userName ?: ""
         return AuthenticationResult(
             AuthenticationAttributes.of(
                 SubjectAttributes.of(username, Attributes.of(Attribute.of("username", username))),
@@ -85,6 +82,7 @@ class UsernameAuthenticatorRequestHandler(config: UsernameAuthenticatorPluginCon
     companion object
     {
         const val templateName = "authenticate/get"
+        const val ADD_CONTEXT = "additionalContextAttribute"
     }
 
     override fun preProcess(request: Request, response: Response): RequestModel
@@ -95,7 +93,7 @@ class UsernameAuthenticatorRequestHandler(config: UsernameAuthenticatorPluginCon
         if (showLinkToSetContextAttribute.isPresent) {
             data["_showLinkToSetContextAttribute"] = true
             data["_contextAttributeMessageKey"] = showLinkToSetContextAttribute.get().getMessageKey()
-            data["_contextAttributeName"] = showLinkToSetContextAttribute.get().getContextAttributeName()
+            data["_contextAttributeName"] = ADD_CONTEXT
         }
         response.setResponseModel(templateResponseModel(data, templateName), Response.ResponseModelScope.NOT_FAILURE)
 
@@ -103,6 +101,6 @@ class UsernameAuthenticatorRequestHandler(config: UsernameAuthenticatorPluginCon
         response.setResponseModel(templateResponseModel(emptyMap(),
             templateName), HttpStatus.BAD_REQUEST)
 
-        return RequestModel(request, userPreferencesManager, showLinkToSetContextAttribute.get().getContextAttributeName())
+        return RequestModel(request, userPreferencesManager)
     }
 }
