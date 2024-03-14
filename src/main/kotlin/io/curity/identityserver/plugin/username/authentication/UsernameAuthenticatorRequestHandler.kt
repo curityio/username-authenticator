@@ -32,7 +32,6 @@ import se.curity.identityserver.sdk.web.ResponseModel.templateResponseModel
 import java.util.Date
 import java.util.Optional
 
-
 class UsernameAuthenticatorRequestHandler(config: UsernameAuthenticatorPluginConfig)
     : AuthenticatorRequestHandler<RequestModel>
 {
