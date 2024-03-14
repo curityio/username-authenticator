@@ -77,9 +77,11 @@ class UsernameAuthenticatorRequestHandler(config: UsernameAuthenticatorPluginCon
         }
 
         val username = userName ?: ""
+        val subjectAttributes = if (userName != null) Attributes.of("username", username) else Attributes.of()
+
         return AuthenticationResult(
             AuthenticationAttributes.of(
-                SubjectAttributes.of(username, Attributes.of(Attribute.of("username", username))),
+                SubjectAttributes.of(username, subjectAttributes),
                 contextAttributes))
     }
 
