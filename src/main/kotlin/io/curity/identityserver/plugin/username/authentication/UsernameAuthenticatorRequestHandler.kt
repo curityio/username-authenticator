@@ -29,7 +29,7 @@ import se.curity.identityserver.sdk.http.HttpStatus
 import se.curity.identityserver.sdk.web.Request
 import se.curity.identityserver.sdk.web.Response
 import se.curity.identityserver.sdk.web.ResponseModel.templateResponseModel
-import java.util.Collections.singletonMap
+import java.lang.RuntimeException
 import java.util.Date
 import java.util.Optional
 
@@ -40,12 +40,22 @@ class UsernameAuthenticatorRequestHandler(config: UsernameAuthenticatorPluginCon
     private val userPreferencesManager = config.userPreferencesManager
     private val autoPostLoginHint = config.autoSubmitPreferredUserName()
     private val exceptionFactory = config.exceptionFactory
+    private val showLinkToSetContextAttribute = config.getShowLinkToSetContextAttribute()
 
     override fun get(requestModel: RequestModel, response: Response): Optional<AuthenticationResult>
     {
-        if (autoPostLoginHint && requestModel.getRequestModel?.preferredUserName != null)
+        val getRequestModel: Get = requestModel.getRequestModel ?: throw exceptionFactory
+            .internalServerException(ErrorCode.GENERIC_ERROR, "Could not find correct request model")
+
+        if (getRequestModel.additionalContextAttribute && showLinkToSetContextAttribute.isPresent) {
+            return Optional.of(createAuthenticationResult(
+                null,
+                showLinkToSetContextAttribute.get().getContextAttributeName())
+            )
+        }
+        else if (autoPostLoginHint && getRequestModel.preferredUserName != null)
         {
-            return Optional.of(createAuthenticationResult(requestModel.getRequestModel.preferredUserName))
+            return Optional.of(createAuthenticationResult(getRequestModel.preferredUserName, null))
         }
         return Optional.empty()
     }
@@ -59,25 +69,42 @@ class UsernameAuthenticatorRequestHandler(config: UsernameAuthenticatorPluginCon
 
         userPreferencesManager.saveUsername(postRequestModel.username)
 
-        return Optional.of(createAuthenticationResult(postRequestModel.username))
+        return Optional.of(createAuthenticationResult(postRequestModel.username, null))
     }
 
-    private fun createAuthenticationResult(userName: String) = AuthenticationResult(
+    private fun createAuthenticationResult(userName: String?, contextAttributeName: String?):
+            AuthenticationResult {
+
+        var contextAttributes = ContextAttributes.of(Attributes.of(Attribute.of("iat", Date().time)))
+        if (contextAttributeName != null) {
+            contextAttributes = contextAttributes.with(Attribute.of(contextAttributeName, true))
+        }
+
+        val username = userName ?: ""
+        val subjectAttributes = if (userName != null) Attributes.of("username", username) else Attributes.of()
+
+        return AuthenticationResult(
             AuthenticationAttributes.of(
-                    SubjectAttributes.of(userName, Attributes.of(Attribute.of("username", userName))),
-                    ContextAttributes.of(Attributes.of(Attribute.of("iat", Date().time)))))
+                SubjectAttributes.of(username, subjectAttributes),
+                contextAttributes))
+    }
 
     companion object
     {
         const val templateName = "authenticate/get"
+        const val ADD_CONTEXT = "additionalContextAttribute"
     }
 
     override fun preProcess(request: Request, response: Response): RequestModel
     {
         // set the template and model for responses on the NOT_FAILURE scope
-        response.setResponseModel(templateResponseModel(
-            singletonMap("username", userPreferencesManager.username as Any?),
-            templateName), Response.ResponseModelScope.NOT_FAILURE)
+        val data = HashMap<String, Any?>(4)
+        data["username"] = userPreferencesManager.username
+        if (showLinkToSetContextAttribute.isPresent) {
+            data["_showLinkToSetContextAttribute"] = true
+            data["_contextAttributeMessageKey"] = showLinkToSetContextAttribute.get().getMessageKey()
+        }
+        response.setResponseModel(templateResponseModel(data, templateName), Response.ResponseModelScope.NOT_FAILURE)
 
         // on request validation failure, we should use the same template as for NOT_FAILURE
         response.setResponseModel(templateResponseModel(emptyMap(),
