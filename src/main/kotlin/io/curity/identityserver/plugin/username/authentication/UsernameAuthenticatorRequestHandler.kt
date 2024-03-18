@@ -29,6 +29,7 @@ import se.curity.identityserver.sdk.http.HttpStatus
 import se.curity.identityserver.sdk.web.Request
 import se.curity.identityserver.sdk.web.Response
 import se.curity.identityserver.sdk.web.ResponseModel.templateResponseModel
+import java.lang.RuntimeException
 import java.util.Date
 import java.util.Optional
 
@@ -43,15 +44,18 @@ class UsernameAuthenticatorRequestHandler(config: UsernameAuthenticatorPluginCon
 
     override fun get(requestModel: RequestModel, response: Response): Optional<AuthenticationResult>
     {
-        if (requestModel.getRequestModel?.register == true && showLinkToSetContextAttribute.isPresent) {
+        val getRequestModel: Get = requestModel.getRequestModel ?: throw exceptionFactory
+            .internalServerException(ErrorCode.GENERIC_ERROR, "Could not find correct request model")
+
+        if (getRequestModel.additionalContextAttribute && showLinkToSetContextAttribute.isPresent) {
             return Optional.of(createAuthenticationResult(
                 null,
                 showLinkToSetContextAttribute.get().getContextAttributeName())
             )
         }
-        else if (autoPostLoginHint  && requestModel.getRequestModel?.preferredUserName != null)
+        else if (autoPostLoginHint && getRequestModel.preferredUserName != null)
         {
-            return Optional.of(createAuthenticationResult(requestModel.getRequestModel.preferredUserName, null))
+            return Optional.of(createAuthenticationResult(getRequestModel.preferredUserName, null))
         }
         return Optional.empty()
     }
@@ -99,7 +103,6 @@ class UsernameAuthenticatorRequestHandler(config: UsernameAuthenticatorPluginCon
         if (showLinkToSetContextAttribute.isPresent) {
             data["_showLinkToSetContextAttribute"] = true
             data["_contextAttributeMessageKey"] = showLinkToSetContextAttribute.get().getMessageKey()
-            data["_contextAttributeName"] = ADD_CONTEXT
         }
         response.setResponseModel(templateResponseModel(data, templateName), Response.ResponseModelScope.NOT_FAILURE)
 

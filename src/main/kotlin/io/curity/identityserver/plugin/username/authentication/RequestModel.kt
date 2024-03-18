@@ -22,6 +22,6 @@ class Post(request: Request)
 
 class Get(request: Request, userPreferenceManager: UserPreferenceManager)
 {
-    var register: Boolean = request.queryParameterNames.contains(UsernameAuthenticatorRequestHandler.ADD_CONTEXT)
+    var additionalContextAttribute: Boolean = request.queryParameterNames.contains(UsernameAuthenticatorRequestHandler.ADD_CONTEXT)
     val preferredUserName: String? = userPreferenceManager.username
 }
