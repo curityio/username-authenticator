@@ -4,4 +4,5 @@ view.authenticate=Logga in
 view.username=Användarnamn
 view.submit=Nästa
 validation.error.username.required=Du måste ange ditt användarnamn
+view.register=Registrera
 

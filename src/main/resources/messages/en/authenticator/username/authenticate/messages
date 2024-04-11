@@ -4,4 +4,5 @@ view.authenticate=Login
 view.username=Username
 view.submit=Next
 validation.error.username.required=You have to enter your username
+view.register=Register
 

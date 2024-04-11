@@ -1,7 +1,6 @@
 package io.curity.identityserver.plugin.username.authentication
 
 import org.hibernate.validator.constraints.NotBlank
-import se.curity.identityserver.sdk.service.OriginalQueryExtractor
 import se.curity.identityserver.sdk.service.UserPreferenceManager
 import se.curity.identityserver.sdk.web.Request
 import javax.validation.Valid
@@ -12,7 +11,7 @@ class RequestModel(request: Request, userPreferenceManager: UserPreferenceManage
     val postRequestModel: Post? = if (request.isPostRequest) Post(request) else null
 
     @Valid
-    val getRequestModel: Get? = if (request.isGetRequest) Get(userPreferenceManager) else null
+    val getRequestModel: Get? = if (request.isGetRequest) Get(request, userPreferenceManager) else null
 }
 
 class Post(request: Request)
@@ -21,7 +20,8 @@ class Post(request: Request)
     val username: String = request.getFormParameterValueOrError("username")
 }
 
-class Get(userPreferenceManager: UserPreferenceManager)
+class Get(request: Request, userPreferenceManager: UserPreferenceManager)
 {
+    var additionalContextAttribute: Boolean = request.queryParameterNames.contains(UsernameAuthenticatorRequestHandler.ADD_CONTEXT)
     val preferredUserName: String? = userPreferenceManager.username
 }
