@@ -34,11 +34,9 @@
 
 <form method="post" action="$_authUrl">
 
-    <div class="sm-col-12 center">
-        <p>
-            #message("${_templatePrefix}.view.authenticate")
-        </p>
-    </div>
+    <h1 class="mt0 center">
+        #message("${_templatePrefix}.view.authenticate")
+    </h1>
 
     <label for="username" class="$!_errorClass">#message("${_templatePrefix}.view.username")</label>
     <input type="text" id="username" name="username" class="block full-width mb1 field-light $!_errorClass"
