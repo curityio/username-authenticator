@@ -84,14 +84,14 @@
     <repositories>
         <repository>
             <id>customer-release-repo</id>
-            <url>https://nexus.curityio.net/repository/customer-release-repo/</url>
+            <url>https://hub.curityio.net/repository/customer-release-repo/</url>
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
         </repository>
         <repository>
             <id>customer-snapshot-repo</id>
-            <url>https://nexus.curityio.net/repository/customer-snapshot-repo</url>
+            <url>https://hub.curityio.net/repository/customer-snapshot-repo</url>
             <snapshots>
                 <enabled>true</enabled>
             </snapshots>
@@ -102,12 +102,12 @@
         <repository>
             <id>customer-release-repo</id>
             <name>Curity Nexus Release Repository</name>
-            <url>https://nexus.curityio.net/repository/customer-release-repo/</url>
+            <url>https://hub.curityio.net/repository/customer-release-repo/</url>
         </repository>
         <snapshotRepository>
             <id>customer-snapshot-repo</id>
             <name>Curity Nexus Snapshot Repository</name>
-            <url>https://nexus.curityio.net/repository/customer-snapshot-repo/</url>
+            <url>https://hub.curityio.net/repository/customer-snapshot-repo/</url>
         </snapshotRepository>
     </distributionManagement>
 </project>
