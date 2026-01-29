@@ -3,7 +3,7 @@ package io.curity.identityserver.plugin.username.authentication
 import org.hibernate.validator.constraints.NotBlank
 import se.curity.identityserver.sdk.service.UserPreferenceManager
 import se.curity.identityserver.sdk.web.Request
-import javax.validation.Valid
+import jakarta.validation.Valid;
 
 class RequestModel(request: Request, userPreferenceManager: UserPreferenceManager)
 {
