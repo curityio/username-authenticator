@@ -42,7 +42,7 @@
     <input type="text" id="username" name="username" class="block full-width mb1 field-light $!_errorClass"
            autocapitalize="none"
            required
-           value="$!username">
+           value="$_tr.encodeHtmlAttribute($!username)">
 
     <button type="submit" class="button button-fullwidth button-primary">#message("${_templatePrefix}.view.submit")</button>
     #if ($_showLinkToSetContextAttribute)
