@@ -5,6 +5,7 @@ import io.curity.identityserver.plugin.username.authentication.UsernameAuthentic
 import io.curity.identityserver.plugin.username.config.UsernameAuthenticatorPluginConfig
 import se.curity.identityserver.sdk.authentication.AuthenticatorRequestHandler
 import se.curity.identityserver.sdk.plugin.descriptor.AuthenticatorPluginDescriptor
+import se.curity.identityserver.sdk.web.RequestHandlerSet
 
 class UsernameAuthenticatorPluginDescriptor : AuthenticatorPluginDescriptor<UsernameAuthenticatorPluginConfig>
 {
@@ -18,4 +19,6 @@ class UsernameAuthenticatorPluginDescriptor : AuthenticatorPluginDescriptor<User
 
     override fun getRepresentationFunctions() = mapOf(
             UsernameAuthenticatorRequestHandler.templateName to GetRepresentationFunction::class.java)
+
+    override fun allowedHandlersForCrossSiteNonSafeRequests(): RequestHandlerSet = RequestHandlerSet.none()
 }
